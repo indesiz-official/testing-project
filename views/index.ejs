@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <title>Welcome to Indesiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- 顶部滚动公告 -->
+<div class="banner">
+  <div class="scrolling-wrapper">
+    <div class="scrolling-text">
+      <% for (let i = 0; i < 5; i++) { %>
+        <span>Welcome to INDESIZ Store</span>
+        <span>Free Shipping For Order Above SGD100</span>
+        <span>New Users Get $30 Off</span>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<style>
+.banner {
+  background-color: rgb(239, 232, 232);
+  color: rgba(17, 8, 103, 0.699);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 18px;
+  font-weight: bold;
+  position: relative;
+}
+.scrolling-wrapper {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll 20s linear infinite;
+}
+.banner:hover .scrolling-wrapper {
+  animation-play-state: paused;
+}
+.scrolling-text span {
+  margin-right: 100px;
+}
+@keyframes scroll {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+/* Footer 链接基础样式 */
+.footer-link {
+  color: white;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+/* Hover 时变渐变蓝色 */
+.footer-link:hover {
+  background: linear-gradient(45deg, #00c6ff, #0072ff);
+  -webkit-background-clip: text; /* Chrome/Safari/Edge */
+  background-clip: text;         /* 标准属性 */
+  -webkit-text-fill-color: transparent;
+  text-decoration: underline;
+}
+</style>
+
+<!-- 导航栏 -->
+<nav class="navbar navbar-expand-sm navbar-dark bg-white">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+      <a class="navbar-brand" href="/">
+        <img src="/images/INDESIZ.png" alt="INDESIZ" style="height:50px;">
+      </a>
+    </div>
+    <!-- 左侧 Shop-->
+    <div class="dropdown me-3">
+      <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Shop</a>
+      <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/">All</a></li>
+        <% collections.forEach(c => { %>
+          <li><a class="dropdown-item" href="/collection/<%= c.collectionId %>"><%= c.collectionName %></a></li>
+        <% }) %>
+      </ul>
+    </div>
+
+    <!-- 右侧 -->
+    <div class="d-flex align-items-center flex-grow-1 justify-content-end">
+    <% if (username) { %>
+        <a href="/profile" class="nav-link text-dark me-3">
+            👤 <%= username %>
+        </a>
+        <a href="/logout" class="nav-link text-dark me-3">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </a>
+    <% } else { %>
+        <a href="/login" class="nav-link text-dark me-3">
+            <i class="bi bi-person-circle"></i> Login
+        </a>
+        <a href="/register" class="nav-link text-dark me-3">
+            <i class="bi bi-person-plus"></i> Register
+        </a>
+    <% } %>
+    <a href="/cart" class="nav-link text-dark">
+        <i class="bi bi-cart"></i> Cart （<%= cartCount %>）
+    </a>
+    </div>
+
+  </div>
+</nav>
+
+<!-- 按系列分组显示产品 -->
+<div class="container mt-4">
+  <% collections.forEach(collection => { %>
+    <!-- 系列标题 -->
+    <div class="text-center my-5">
+      <h2 class="fw-bold border-bottom pb-2 d-inline-block">
+        <%= collection.collectionName %>
+      </h2>
+    </div>
+
+    <!-- 产品列表 -->
+    <div class="row g-4">
+      <% collection.products.forEach(product => { %>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <img src="<%= product.image %>" class="card-img-top" alt="<%= product.productName %>">
+            <div class="card-body text-center d-flex flex-column">
+              <h5 class="card-title"><%= product.productName %></h5>
+              <p class="card-text fw-bold">$<%= product.price.toFixed(2) %></p>
+              
+              <a href="/product/<%= product.productId %>" class="btn btn-dark mb-2">Click In</a>
+              
+              <% if (product.status === 'soldout') { %>
+                <span class="badge bg-danger">Sold Out</span>
+              <% } else { %>
+                <form action="/cart/add" method="POST" class="mt-auto d-flex justify-content-center align-items-center gap-2">
+                  <input type="hidden" name="productId" value="<%= product.productId %>">
+                  <input type="number" name="quantity" value="1" min="1" style="width: 60px;" required>
+                  <button type="submit" class="btn btn-success btn-sm">Add to Cart</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% }) %>
+</div>
+
+
+<!-- 🔹 Footer -->
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark mt-5">
+  <div class="container-fluid">
+    <div class="w-100 text-center text-white">
+      <span class="navbar-text d-block">© 2025 Fire Wheeler Pte Ltd</span>
+      <small class="navbar-text d-block">
+        <a href="#" class="footer-link" data-bs-toggle="modal" data-bs-target="#termsModal">TERMS OF USE</a> | 
+        <a href="/privacy" class="footer-link">PRIVACY POLICY</a> | 
+        <a href="/refund" class="footer-link">SHIPPING & RETURNS</a>
+      </small>
+    </div>
+  </div>
+</nav>
+
+<!-- 🔹 Terms of Use Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="termsModalLabel">Terms of Service – INDESIZ</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-muted text-center">Effective Date: August 2025</p>
+
+        <h5>1. Overview</h5>
+        <p>This website (“Site”) is operated by INDESIZ. “We”, “us”, and “our” refer to INDESIZ. By using the Site or purchasing products, you agree to these Terms of Service (“Terms”), as well as any linked policies (Privacy Policy, Refund Policy, etc.). If you do not agree, do not use the Site.</p>
+
+        <h5>2. Eligibility</h5>
+        <p>You must be at least 18 years old (or the age of majority in your jurisdiction). If under 18, you may only use the Site with parental or guardian consent.</p>
+
+        <h5>3. User Accounts</h5>
+        <p>If you create an account, you are responsible for maintaining the confidentiality of your login credentials and for all activity under your account. Notify us immediately if you suspect unauthorized access.</p>
+
+        <h5>4. Acceptable Use</h5>
+        <p>You agree not to: <br>
+          - Violate laws or regulations in your jurisdiction;<br>
+          - Interfere with Site operation or security;<br>
+          - Upload viruses, malware, or harmful code;<br>
+          - Collect or track other users’ personal information without consent;<br>
+          - Harass, abuse, defame, or discriminate against others;<br>
+          - Engage in spam, phishing, scraping, or other malicious activities.<br>
+        Violation may result in account termination and legal action.</p>
+
+        <h5>5. Intellectual Property</h5>
+        <p>All content on this Site, including text, images, logos, and trademarks, is owned by INDESIZ. You may not reproduce, distribute, or use any materials without prior written consent. User submissions (comments, suggestions, reviews) grant INDESIZ a non-exclusive, worldwide license to use, modify, publish, and distribute your content.</p>
+
+        <h5>6. Orders and Payments</h5>
+        <p>All orders are subject to acceptance and availability. INDESIZ reserves the right to cancel or refuse any order at our sole discretion. Payments must be completed using the available methods provided. You agree to provide accurate and up-to-date billing and contact information. For details, refer to our <a href="/refund">Refund & Return Policy</a>.</p>
+
+        <h5>7. Shipping and Delivery</h5>
+        <p>Delivery timelines are estimates and may vary. INDESIZ is not responsible for delays caused by third parties, customs, or unforeseen events. Please refer to our <a href="/refund">Refund & Return Policy</a> for exchanges and returns.</p>
+
+        <h5>8. Third-Party Services</h5>
+        <p>The Site may contain links or access to third-party websites or tools. We do not control these and are not responsible for their content, policies, or practices. Your use of third-party services is at your own risk. Complaints regarding third-party products/services should be directed to the third party.</p>
+
+        <h5>9. Disclaimer of Warranties</h5>
+        <p>The Site and its contents are provided “as is” and “as available.” INDESIZ makes no warranties regarding accuracy, reliability, or availability. Your use of the Site and products is at your own risk.</p>
+
+        <h5>10. Limitation of Liability</h5>
+        <p>INDESIZ shall not be liable for any direct, indirect, incidental, or consequential damages, including but not limited to data loss, system errors, or third-party actions, to the fullest extent permitted by law.</p>
+
+        <h5>11. Indemnification</h5>
+        <p>You agree to indemnify and hold INDESIZ harmless from any claims, damages, or expenses arising from your violation of these Terms, applicable laws, or third-party rights.</p>
+
+        <h5>12. Termination</h5>
+        <p>We may suspend or terminate your access to the Site for violating these Terms. Obligations incurred prior to termination remain in effect. Termination does not release you from liability for previous actions.</p>
+
+        <h5>13. Force Majeure</h5>
+        <p>We are not liable for delays or failures caused by events beyond our control, including natural disasters, strikes, network failures, or government actions.</p>
+
+        <h5>14. Changes to Terms</h5>
+        <p>We may update these Terms at any time. Continued use of the Site after updates constitutes acceptance. Check this page periodically for updates.</p>
+
+        <h5>15. Governing Law</h5>
+        <p>These Terms are governed by the laws of Singapore. Any disputes shall be subject to the exclusive jurisdiction of Singapore courts.</p>
+
+        <p class="mt-4 text-center text-muted">
+          If you have questions about these Terms, please contact us at 
+          <a href="mailto:support@indesiz.com">support@indesiz.com</a>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" style="background: linear-gradient(45deg, #00c6ff, #0072ff); color: white;" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 右下角固定反馈按钮 -->
+<a href="/feedback" id="feedbackButton" class="btn rounded-circle shadow"
+   style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; z-index: 1000; transition: transform 0.2s; 
+          background: linear-gradient(45deg, #00c6ff, #0072ff); color: white;">
+  <i class="bi bi-chat-dots-fill" style="font-size: 1.5rem;"></i>
+  <span id="feedbackText" style="position: absolute; right: 70px; background-color: #00c6ff; color: white; padding: 5px 10px; border-radius: 5px; white-space: nowrap; opacity: 0; transition: opacity 0.2s;">Feedback</span>
+</a>
+
+<script>
+  const button = document.getElementById('feedbackButton');
+  const text = document.getElementById('feedbackText');
+
+  button.addEventListener('mouseenter', () => {
+    button.style.transform = 'scale(1.2)';
+    text.style.opacity = 1;
+  });
+
+  button.addEventListener('mouseleave', () => {
+    button.style.transform = 'scale(1)';
+    text.style.opacity = 0;
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkout Page - Indesiz</title>
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+  <!-- 🔹 导航栏 -->
+  <nav class="navbar navbar-expand-sm navbar-light bg-white shadow-sm">
+  <div class="container">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <!-- 左侧 Logo -->
+      <a class="navbar-brand fw-bold text-dark" href="/">INDESIZ</a>
+
+      <!-- 右侧菜单 -->
+      <div class="d-flex align-items-center">
+        <% if (user) { %>
+          <span href="/profile" class="nav-link text-dark me-3">
+            👤 <%= user.username %>
+          </span>
+        <% } else { %>
+          <a href="/login" class="nav-link text-dark me-3">
+            <i class="bi bi-person-circle"></i> Login
+          </a>
+          <a href="/register" class="nav-link text-dark me-3">
+            <i class="bi bi-person-plus"></i> Register
+          </a>
+        <% } %>
+        <a href="/cart" class="nav-link text-dark">
+          <i class="bi bi-cart"></i> Cart (<%= cartCount || 0 %>)
+        </a>
+      </div>
+    </div>
+    </div>
+  </nav>
+
+  <!-- 🔹 Checkout 内容 -->
+  <div class="container my-5">
+    <h2 class="mb-4">🧾 Payment 结账页面</h2>
+    
+    <!-- 顾客信息 -->
+    <div class="card p-3 mb-4 shadow-sm">
+      <h4 class="mb-3">📍 顾客信息</h4>
+      <p><strong>Username 用户名:</strong> <%= user.username %></p>
+      <p><strong>Phone Number 电话号码:</strong> <%= user.phone %></p>
+      <p><strong>Address 地址:</strong> <%= user.address %></p>
+      <p><strong>Email 邮箱:</strong> <%= user.email %></p>
+    </div>
+    <div class="card p-3 shadow-sm mt-4">
+      <h4 class="mb-3">💳 Payment Method 付款方式</h4>
+
+      <form id="payment-form">
+        <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="card" value="card" checked>
+              <label class="form-check-label" for="card">
+                Credit / Debit Card (Stripe)
+              </label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="paymentMethod" id="paypal" value="paypal">
+              <label class="form-check-label" for="paypal">
+                PayPal (Coming Soon)
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-success mt-3 w-100 fw-bold">PayNow 确认付款</button>
+          </form>
+        </div>
+    </div>
+
+    <!-- 订单详情 -->
+    <div class="card p-3 shadow-sm">
+      <h4 class="mb-3">🛒 Your Order 订单内容</h4>
+      <ul class="list-group mb-3">
+        <% items.forEach(item => { %>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <%= item.productName %> x <%= item.quantity %> <%= item.size ? '(' + item.size + ')' : '' %>
+            <span>$<%= item.total.toFixed(2) %></span>
+          </li>
+        <% }) %>
+      </ul>
+
+      <div class="d-flex justify-content-between">
+        <h5 class="fw-bold">Total 总数</h5>
+        <h5 class="fw-bold">$<%= total.toFixed(2) %> + $10 (Shipping 运费)</h5>
+      </div>
+
+      <div class="d-flex justify-content-between mt-2">
+        <h5 class="fw-bold">Grand Total 总计</h5>
+        <h5 class="fw-bold text-success">$<%= (total + 10).toFixed(2) %></h5>
+      </div>
+
+      <form action="/payment" method="GET">
+        <button type="submit" class="btn btn-success mt-3 w-100 fw-bold">PayNow 确认结账</button>
+      </form>
+    </div>
+  </div>
+
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe('<%= process.env.STRIPE_PUBLISHABLE_KEY %>'); // ⚡ 前端用 publishable key
+
+  const paymentForm = document.getElementById('payment-form');
+
+  paymentForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+
+    if (method === 'card') {
+      // 调用后端创建 Checkout Session
+      const res = await fetch('/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location = data.url; // 重定向到 Stripe Checkout
+      } else {
+        alert('创建付款失败，请稍后再试');
+      }
+    } else {
+      alert('PayPal 功能尚未开放');
+    }
+  });
+</script>
+
+</body>
+</html>

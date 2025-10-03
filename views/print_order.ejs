@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>打印订单- Indesiz</title>
+  <style>
+    body {
+      font-family: Arial;
+      margin: 2cm;
+    }
+    .box {
+      border: 2px dashed black;
+      padding: 2em;
+      width: 100%;
+    }
+    h2 { margin-bottom: 1em; }
+    p { font-size: 1.2em; margin: 0.5em 0; }
+  </style>
+</head>
+<body onload="window.print()">
+  <div class="box">
+    <h2>📦 发货标签</h2>
+    <p><strong>订单编号:</strong> <%= order.orderId %></p>
+    <p><strong>顾客姓名:</strong> <%= order.username %></p>
+    <p><strong>电话:</strong> <%= order.phone %></p>
+    <p><strong>地址:</strong> <%= order.address %></p>
+    <p><strong>商品:</strong> <%= order.productName %></p>
+    <p><strong>数量:</strong> <%= order.quantity %></p>
+    <p><strong>下单时间:</strong> <%= new Date(order.orderDate).toLocaleString() %></p>
+  </div>
+</body>
+</html>
